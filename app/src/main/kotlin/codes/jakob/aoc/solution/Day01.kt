@@ -9,7 +9,7 @@ object Day01 : Solution() {
             .asSequence()
             .map { line -> line.splitByCharacter() }
             .map { chars -> chars.first { it.isDigit() } to chars.last { it.isDigit() } }
-            .map { (first, second) -> "$first$second" }
+            .map { (first, last) -> "$first$last" }
             .map { it.toInt() }
             .sum()
     }
@@ -20,7 +20,7 @@ object Day01 : Solution() {
             .asSequence()
             .map { line -> detectDigitsFromSentence(line) }
             .map { digits -> digits.first() to digits.last() }
-            .map { (first, second) -> "$first$second" }
+            .map { (first, last) -> "$first$last" }
             .map { it.toInt() }
             .sum()
     }
