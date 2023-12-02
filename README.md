@@ -18,6 +18,7 @@ Your instincts tell you that in order to save Christmas, you'll need to get all 
 
 ## Puzzles
 
-| Day                | Part 1 | Part 2 |
-|--------------------|--------|--------|
-| Day 1: Trebuchet?! | ⭐      | ⭐      |
+| Day                   | Part 1 | Part 2 |
+|-----------------------|--------|--------|
+| Day 1: Trebuchet?!    | ⭐      | ⭐      |
+| Day 2: Cube Conundrum | ⭐      | ⭐      |
