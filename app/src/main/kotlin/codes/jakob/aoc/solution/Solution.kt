@@ -113,3 +113,11 @@ fun <K, V> Map<K, V>.reversed(): Map<V, K> {
 fun <E> Stack<E>.peekOrNull(): E? {
     return if (this.isNotEmpty()) this.peek() else null
 }
+
+fun <E> List<E>.associateByIndex(): Map<Int, E> {
+    return this.mapIndexed { index, element -> index to element }.toMap()
+}
+
+fun <E : Number> Collection<E>.multiply(): Int {
+    return this.fold(1) { acc: Int, number: E -> acc * number.toInt() }
+}
