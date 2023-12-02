@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package codes.jakob.aoc.solution
 
 import java.io.File

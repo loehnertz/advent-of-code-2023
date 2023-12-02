@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package codes.jakob.aoc.shared
 
 import java.util.*
