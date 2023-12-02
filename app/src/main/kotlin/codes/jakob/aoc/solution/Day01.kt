@@ -1,5 +1,8 @@
 package codes.jakob.aoc.solution
 
+import codes.jakob.aoc.shared.splitByCharacter
+import codes.jakob.aoc.shared.splitMultiline
+
 object Day01 : Solution() {
     private val digitsPattern = Regex("(?=(zero|one|two|three|four|five|six|seven|eight|nine|\\d))")
 

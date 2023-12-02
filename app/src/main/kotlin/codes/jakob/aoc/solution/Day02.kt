@@ -1,5 +1,9 @@
 package codes.jakob.aoc.solution
 
+import codes.jakob.aoc.shared.associateByIndex
+import codes.jakob.aoc.shared.multiply
+import codes.jakob.aoc.shared.splitMultiline
+
 object Day02 : Solution() {
     override fun solvePart1(input: String): Any {
         val cubeAmountConstraints: Map<CubeType, Int> = mapOf(
