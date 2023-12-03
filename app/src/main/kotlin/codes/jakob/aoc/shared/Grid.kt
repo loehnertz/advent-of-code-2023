@@ -49,6 +49,19 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
         })
     }
 
+    /**
+     * Reduces the grid in the given direction.
+     * The outer reduction is applied to each row/column of the grid in the chosen direction.
+     * The inner reduction is applied to the result of the outer reduction.
+     * The result of the inner reduction is returned.
+     * The reduction is applied to the grid in the given direction.
+     * For example, if the direction is [SimpleDirection.NORTH], the grid is transposed and the outer reduction is applied to each column.
+     *
+     * @param direction The direction in which the grid is reduced
+     * @param outer The reduction applied to each row/column of the grid
+     * @param inner The reduction applied to the result of the outer reduction
+     * @return The result of the inner reduction
+     */
     fun <R1, R2> reduce(
         direction: SimpleDirection,
         outer: (List<Cell<T>>) -> R1,
@@ -98,6 +111,10 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
             return grid.getInDirection(coordinates, direction)
         }
 
+        /**
+         * Maps the cell in the given direction.
+         * The mapping is applied to each cell in the given direction.
+         */
         fun <R> mapInDirection(direction: ExpandedDirection, block: (Cell<T>) -> R): List<R> {
             val mapped: MutableList<R> = mutableListOf()
             var currentCell: Cell<T>? = this
@@ -108,6 +125,10 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
             return mapped
         }
 
+        /**
+         * Reduces the cell in the given direction.
+         * The accumulator is applied to each cell in the given direction.
+         */
         fun <R> foldInDirection(
             direction: ExpandedDirection,
             initial: R,
@@ -122,6 +143,10 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
             return reduced
         }
 
+        /**
+         * Folds the cell in every direction.
+         * The accumulator is applied to each cell in every direction.
+         */
         fun <R> foldInEveryDirection(
             initial: R,
             accumulator: (R, Cell<T>) -> R,
