@@ -2,7 +2,7 @@ package codes.jakob.aoc.solution
 
 import codes.jakob.aoc.shared.associateByIndex
 import codes.jakob.aoc.shared.multiply
-import codes.jakob.aoc.shared.splitMultiline
+import codes.jakob.aoc.shared.splitByLines
 
 object Day02 : Solution() {
     override fun solvePart1(input: String): Any {
@@ -74,7 +74,7 @@ object Day02 : Solution() {
         // We split the input into games, then we parse each game.
         // We then associate each game with its index (as it's given with its index in the input).
         return input
-            .splitMultiline()
+            .splitByLines()
             .map { parseGame(it) }
             .associateByIndex()
             .mapKeys { (index, _) -> index + 1 }

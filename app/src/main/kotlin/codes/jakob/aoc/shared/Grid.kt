@@ -1,27 +1,66 @@
 package codes.jakob.aoc.shared
 
-import codes.jakob.aoc.shared.Grid.Direction.*
+import codes.jakob.aoc.shared.ExpandedDirection.*
 
+
+/**
+ * A grid is a two-dimensional collection of cells.
+ * Each cell has a value and a set of coordinates.
+ * The coordinates are used to identify the cell in the grid.
+ * The value is lazily evaluated.
+ *
+ * @param T The type of the value of each cell
+ */
+@Suppress("MemberVisibilityCanBePrivate")
 class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
     constructor(
         coordinateValues: Map<Coordinates, (Cell<T>) -> T>,
         defaultValueConstructor: (Cell<T>) -> T,
-    ) : this(fromMap(coordinateValues, defaultValueConstructor))
+    ) : this(fromCoordinatesValues(coordinateValues, defaultValueConstructor))
 
-    val matrix: List<List<Cell<T>>> = generateMatrix(input)
+    val matrix: Matrix<T> = generateMatrix(input)
     val cells: LinkedHashSet<Cell<T>> = LinkedHashSet(matrix.flatten())
 
-    fun getAdjacent(x: Int, y: Int, diagonally: Boolean = false): List<Cell<T>> {
+    fun getAtCoordinates(coordinates: Coordinates): Cell<T>? = matrix.getOrNull(coordinates.y)?.getOrNull(coordinates.x)
+
+    fun getAdjacent(coordinates: Coordinates, diagonally: Boolean = false): List<Cell<T>> {
         return listOfNotNull(
-            matrix.getOrNull(y - 1)?.getOrNull(x),
-            if (diagonally) matrix.getOrNull(y - 1)?.getOrNull(x + 1) else null,
-            matrix.getOrNull(y)?.getOrNull(x + 1),
-            if (diagonally) matrix.getOrNull(y + 1)?.getOrNull(x + 1) else null,
-            matrix.getOrNull(y + 1)?.getOrNull(x),
-            if (diagonally) matrix.getOrNull(y + 1)?.getOrNull(x - 1) else null,
-            matrix.getOrNull(y)?.getOrNull(x - 1),
-            if (diagonally) matrix.getOrNull(y - 1)?.getOrNull(x - 1) else null,
+            getInDirection(coordinates, NORTH),
+            if (diagonally) getInDirection(coordinates, NORTH_EAST) else null,
+            getInDirection(coordinates, EAST),
+            if (diagonally) getInDirection(coordinates, SOUTH_EAST) else null,
+            getInDirection(coordinates, SOUTH),
+            if (diagonally) getInDirection(coordinates, SOUTH_WEST) else null,
+            getInDirection(coordinates, WEST),
+            if (diagonally) getInDirection(coordinates, NORTH_WEST) else null,
         )
+    }
+
+    fun getInDirection(coordinates: Coordinates, direction: ExpandedDirection): Cell<T>? {
+        return getAtCoordinates(coordinates.inDirection(direction))
+    }
+
+    fun <R> map(block: (Cell<T>) -> R): Grid<R> = fromMatrix(matrix.map { row -> row.map(block) })
+
+    fun map(coordinates: Coordinates, block: (Cell<T>) -> T): Grid<T> {
+        val desired: Cell<T> = getAtCoordinates(coordinates) ?: error("Coordinates do not exist in this grid")
+        return fromMatrix(matrix.map { row ->
+            row.map { cell -> if (desired == cell) block(cell) else cell.content.value }
+        })
+    }
+
+    fun <R1, R2> reduce(
+        direction: SimpleDirection,
+        outer: (List<Cell<T>>) -> R1,
+        inner: (List<R1>) -> R2,
+    ): R2 {
+        val matrixInDirection: Matrix<T> = when (direction) {
+            SimpleDirection.NORTH -> matrix.transpose()
+            SimpleDirection.EAST -> matrix.map { it.reversed() }
+            SimpleDirection.SOUTH -> matrix.transpose().map { it.reversed() }
+            SimpleDirection.WEST -> matrix
+        }
+        return inner(matrixInDirection.map(outer))
     }
 
     private fun generateMatrix(input: List<List<(Cell<T>) -> T>>): List<List<Cell<T>>> {
@@ -44,23 +83,10 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
             valueConstructor: (Cell<T>) -> T,
         ) : this(grid, Coordinates(x, y), valueConstructor)
 
-        val value: T = valueConstructor(this)
+        val content: Lazy<T> = lazy { valueConstructor(this) }
 
         fun getAdjacent(diagonally: Boolean = false): List<Cell<T>> {
-            return grid.getAdjacent(coordinates.x, coordinates.y, diagonally)
-        }
-
-        fun getAdjacent(direction: Direction): Cell<T>? {
-            return when (direction) {
-                NORTH -> grid.matrix.getOrNull(coordinates.y - 1)?.getOrNull(coordinates.x)
-                NORTH_EAST -> grid.matrix.getOrNull(coordinates.y - 1)?.getOrNull(coordinates.x + 1)
-                EAST -> grid.matrix.getOrNull(coordinates.y)?.getOrNull(coordinates.x + 1)
-                SOUTH_EAST -> grid.matrix.getOrNull(coordinates.y + 1)?.getOrNull(coordinates.x + 1)
-                SOUTH -> grid.matrix.getOrNull(coordinates.y + 1)?.getOrNull(coordinates.x)
-                SOUTH_WEST -> grid.matrix.getOrNull(coordinates.y + 1)?.getOrNull(coordinates.x - 1)
-                WEST -> grid.matrix.getOrNull(coordinates.y)?.getOrNull(coordinates.x - 1)
-                NORTH_WEST -> grid.matrix.getOrNull(coordinates.y - 1)?.getOrNull(coordinates.x - 1)
-            }
+            return grid.getAdjacent(coordinates, diagonally)
         }
 
         fun distanceTo(other: Cell<T>, diagonally: Boolean = false): Int {
@@ -68,8 +94,43 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
             return this.coordinates.distanceTo(other.coordinates, diagonally)
         }
 
+        fun getInDirection(direction: ExpandedDirection): Cell<T>? {
+            return grid.getInDirection(coordinates, direction)
+        }
+
+        fun <R> mapInDirection(direction: ExpandedDirection, block: (Cell<T>) -> R): List<R> {
+            val mapped: MutableList<R> = mutableListOf()
+            var currentCell: Cell<T>? = this
+            while (currentCell != null) {
+                currentCell = currentCell.getInDirection(direction)
+                if (currentCell != null) mapped += block(currentCell)
+            }
+            return mapped
+        }
+
+        fun <R> foldInDirection(
+            direction: ExpandedDirection,
+            initial: R,
+            accumulator: (R, Cell<T>) -> R,
+        ): R {
+            var reduced: R = initial
+            var currentCell: Cell<T>? = this
+            while (currentCell != null) {
+                currentCell = currentCell.getInDirection(direction)
+                if (currentCell != null) reduced = accumulator(reduced, currentCell)
+            }
+            return reduced
+        }
+
+        fun <R> foldInEveryDirection(
+            initial: R,
+            accumulator: (R, Cell<T>) -> R,
+        ): Map<ExpandedDirection, R> {
+            return entries.associateWith { this.foldInDirection(it, initial, accumulator) }
+        }
+
         override fun toString(): String {
-            return "Cell(value=$value, coordinates=$coordinates)"
+            return "Cell(value=$content, coordinates=$coordinates)"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -91,19 +152,12 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
         }
     }
 
-    enum class Direction {
-        NORTH,
-        NORTH_EAST,
-        EAST,
-        SOUTH_EAST,
-        SOUTH,
-        SOUTH_WEST,
-        WEST,
-        NORTH_WEST;
-    }
-
     companion object {
-        fun <T> fromMap(
+        fun <T> fromMatrix(matrix: List<List<T>>): Grid<T> {
+            return Grid(matrix.map { inner -> inner.map { value -> { value } } })
+        }
+
+        fun <T> fromCoordinatesValues(
             coordinateValues: Map<Coordinates, (Cell<T>) -> T>,
             defaultValueConstructor: (Cell<T>) -> T,
         ): List<List<(Cell<T>) -> T>> {
@@ -115,13 +169,7 @@ class Grid<T>(input: List<List<(Cell<T>) -> T>>) {
                 }
             }
         }
-
-        fun <T> fromRawList(input: List<List<T>>): List<List<(Cell<T>) -> T>> {
-            return input.map { row: List<T> ->
-                row.map { cell: T ->
-                    { _: Cell<T> -> cell }
-                }
-            }
-        }
     }
 }
+
+typealias Matrix<T> = List<List<Grid.Cell<T>>>

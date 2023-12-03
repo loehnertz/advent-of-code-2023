@@ -1,5 +1,3 @@
-@file:Suppress("unused")
-
 package codes.jakob.aoc.shared
 
 import java.util.*
@@ -7,7 +5,7 @@ import java.util.*
 
 fun String.splitByCharacter(): List<Char> = split("").filterNot { it.isBlank() }.map { it.toSingleChar() }
 
-fun String.splitMultiline(): List<String> = split("\n")
+fun String.splitByLines(): List<String> = split("\n")
 
 fun Int.isEven(): Boolean = this % 2 == 0
 
@@ -44,6 +42,54 @@ fun <T, K> Collection<T>.countBy(keySelector: (T) -> K): Map<K, Int> {
     return this.groupingBy(keySelector).eachCount()
 }
 
+/**
+ * Returns any given [Map] with its keys and values reversed (i.e., the keys becoming the values and vice versa).
+ * Note in case of duplicate values, they will be overridden in the key-set unpredictably.
+ */
+fun <K, V> Map<K, V>.reversed(): Map<V, K> {
+    return HashMap<V, K>(this.count()).also { reversedMap: HashMap<V, K> ->
+        this.entries.forEach { reversedMap[it.value] = it.key }
+    }
+}
+
+fun <E> Stack<E>.peekOrNull(): E? {
+    return if (this.isNotEmpty()) this.peek() else null
+}
+
+fun <E> List<E>.associateByIndex(): Map<Int, E> {
+    return this.mapIndexed { index, element -> index to element }.toMap()
+}
+
+private val NUMBER_PATTERN = Regex("\\d+")
+fun String.isNumber(): Boolean = NUMBER_PATTERN.matches(this)
+
+fun <K, V, NK> Map<K, V>.mapKeysMergingValues(
+    transformKey: (K, V) -> NK,
+    mergeValues: (V, V) -> V,
+): Map<NK, V> {
+    return this
+        .asSequence()
+        .map { (key, value) -> transformKey(key, value) to value }
+        .groupBy({ it.first }, { it.second })
+        .mapValues { (_, values) -> values.reduce(mergeValues) }
+}
+
+inline fun <T, R> Pair<T, T>.map(block: (T) -> R): Pair<R, R> {
+    return this.let { (first: T, second: T) ->
+        block(first) to block(second)
+    }
+}
+
+inline fun <A, B, C, D> Pair<A, B>.map(blockA: (A) -> C, blockB: (B) -> D): Pair<C, D> {
+    return this.let { (first: A, second: B) ->
+        blockA(first) to blockB(second)
+    }
+}
+
+fun <E> List<E>.splitInHalf(): Pair<List<E>, List<E>> {
+    return this.subList(0, this.size / 2) to this.subList(this.size / 2, this.size)
+}
+
 fun List<Int>.binaryToDecimal(): Int {
     require(this.all { it == 0 || it == 1 }) { "Expected bit string, but received $this" }
     return Integer.parseInt(this.joinToString(""), 2)
@@ -71,38 +117,46 @@ fun <T> List<List<T>>.transpose(): List<List<T>> {
     return result
 }
 
-/**
- * Returns any given [Map] with its keys and values reversed (i.e., the keys becoming the values and vice versa).
- * Note in case of duplicate values, they will be overridden in the key-set unpredictably.
- */
-fun <K, V> Map<K, V>.reversed(): Map<V, K> {
-    return HashMap<V, K>(this.count()).also { reversedMap: HashMap<V, K> ->
-        this.entries.forEach { reversedMap[it.value] = it.key }
-    }
+infix fun <T : Comparable<T>> ClosedRange<T>.fullyContains(other: ClosedRange<T>): Boolean {
+    return this.start in other && this.endInclusive in other
 }
 
-fun <E> Stack<E>.peekOrNull(): E? {
-    return if (this.isNotEmpty()) this.peek() else null
+infix fun <T : Comparable<T>> ClosedRange<T>.overlaps(other: ClosedRange<T>): Boolean {
+    return this.start in other || this.endInclusive in other
 }
 
-fun <E> List<E>.associateByIndex(): Map<Int, E> {
-    return this.mapIndexed { index, element -> index to element }.toMap()
+fun <E> List<E>.toPair(): Pair<E, E> {
+    require(this.size == 2) { "The given list has to contain exactly two elements, instead found ${this.size}" }
+    return this[0] to this[1]
 }
 
-fun <E : Number> Collection<E>.multiply(): Int {
-    return this.fold(1) { acc: Int, number: E -> acc * number.toInt() }
+fun String.parseRange(delimiter: Char = '-'): IntRange {
+    val (from: Int, to: Int) = this.split(delimiter).map { it.toInt() }
+    return from..to
 }
 
-private val NUMBER_PATTERN = Regex("\\d+")
-fun String.isNumber(): Boolean = NUMBER_PATTERN.matches(this)
+@Synchronized
+fun <K, V> MutableMap<K, V>.getOrCompute(key: K, valueFunction: () -> V): V {
+    return this[key] ?: valueFunction().also { this[key] = it }
+}
 
-fun <K, V, NK> Map<K, V>.mapKeysMergingValues(
-    transformKey: (K, V) -> NK,
-    mergeValues: (V, V) -> V,
-): Map<NK, V> {
-    return this
-        .asSequence()
-        .map { (key, value) -> transformKey(key, value) to value }
-        .groupBy({ it.first }, { it.second })
-        .mapValues { (_, values) -> values.reduce(mergeValues) }
+fun <T, R> Collection<T>.allUnique(block: (T) -> R): Boolean {
+    val mapped: List<R> = this.map(block)
+    return mapped.size == mapped.toSet().size
+}
+
+fun <E> Collection<E>.cartesianProduct(): List<Pair<E, E>> {
+    return this.flatMap { lhs: E -> this.map { rhs: E -> lhs to rhs } }
+}
+
+fun Iterable<Int>.multiply(): Int = reduce { acc, int -> acc * int }
+
+fun Char.parseInt(): Int = toString().toInt()
+
+fun <T> String.parseMatrix(block: (Char) -> T): List<List<T>> {
+    return this.splitByLines().map { it.splitByCharacter().map(block) }
+}
+
+fun <T> String.parseGrid(block: (Char) -> T): Grid<T> {
+    return Grid.fromMatrix(this.parseMatrix(block))
 }

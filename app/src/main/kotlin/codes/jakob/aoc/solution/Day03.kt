@@ -1,21 +1,22 @@
 package codes.jakob.aoc.solution
 
 import codes.jakob.aoc.shared.*
-import codes.jakob.aoc.shared.Grid.Companion.fromRawList
 
 object Day03 : Solution() {
     private val symbolPattern = Regex("[^.\\d]")
     private val gearPattern = Regex("\\*")
 
     override fun solvePart1(input: String): Any {
-        return buildGrid(input).cells
+        return input
+            .parseGrid { it }
+            .cells
             .asSequence()
             // Filter out all cells that are not a digit
-            .filter { cell -> cell.value.isDigit() }
+            .filter { cell -> cell.content.value.isDigit() }
             // Filter out all cells that are not adjacent to a symbol
             .filter { cell ->
                 cell.getAdjacent(diagonally = true).any { adjacent ->
-                    symbolPattern.matches(adjacent.value.toString())
+                    symbolPattern.matches(adjacent.content.value.toString())
                 }
             }
             // Map each cell to the starting cell of the number it belongs to (e.g., 987 -> 9)
@@ -29,13 +30,15 @@ object Day03 : Solution() {
     }
 
     override fun solvePart2(input: String): Any {
-        return buildGrid(input).cells
+        return input
+            .parseGrid { it }
+            .cells
             // Filter out all cells that are not a digit
-            .filter { cell -> cell.value.isDigit() }
+            .filter { cell -> cell.content.value.isDigit() }
             // Associate each cell with all adjacent cells that are gears
             .associateWith { cell ->
                 cell.getAdjacent(diagonally = true).filter { adjacent ->
-                    gearPattern.matches(adjacent.value.toString())
+                    gearPattern.matches(adjacent.content.value.toString())
                 }.toSet()
             }
             // Associate each cell with the starting cell of the number it belongs to (e.g., 987 -> 9)
@@ -68,18 +71,13 @@ object Day03 : Solution() {
             .sum()
     }
 
-    private fun buildGrid(input: String): Grid<Char> {
-        val matrix: List<List<Char>> = input.splitMultiline().map { row -> row.splitByCharacter() }
-        return Grid(fromRawList(matrix))
-    }
-
     /**
      * Finds the starting cell of a number by going west until the next cell is not a digit anymore.
      */
     private fun findStartingCell(cell: Grid.Cell<Char>): Grid.Cell<Char> {
         tailrec fun findStartingCell(currentCell: Grid.Cell<Char>): Grid.Cell<Char> {
-            val adjacentWest: Grid.Cell<Char>? = currentCell.getAdjacent(Grid.Direction.WEST)
-            return if (adjacentWest?.value?.isDigit() == true) {
+            val adjacentWest: Grid.Cell<Char>? = currentCell.getInDirection(ExpandedDirection.WEST)
+            return if (adjacentWest?.content?.value?.isDigit() == true) {
                 findStartingCell(adjacentWest)
             } else currentCell
         }
@@ -94,15 +92,15 @@ object Day03 : Solution() {
         val partNumberCells: MutableList<Grid.Cell<Char>> = mutableListOf(cell)
 
         tailrec fun addNextDigitCell(currentCell: Grid.Cell<Char>?) {
-            if (currentCell?.value?.isDigit() == true) {
+            if (currentCell?.content?.value?.isDigit() == true) {
                 partNumberCells.add(currentCell)
-                addNextDigitCell(currentCell.getAdjacent(Grid.Direction.EAST))
+                addNextDigitCell(currentCell.getInDirection(ExpandedDirection.EAST))
             }
         }
 
-        addNextDigitCell(cell.getAdjacent(Grid.Direction.EAST))
-        require(partNumberCells.all { it.value.isDigit() }) { "The part number cells must all be digits." }
-        return partNumberCells.joinToString("") { it.value.toString() }.toInt()
+        addNextDigitCell(cell.getInDirection(ExpandedDirection.EAST))
+        require(partNumberCells.all { it.content.value.isDigit() }) { "The part number cells must all be digits." }
+        return partNumberCells.joinToString("") { it.content.value.toString() }.toInt()
     }
 }
 

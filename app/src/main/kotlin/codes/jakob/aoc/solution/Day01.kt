@@ -1,7 +1,7 @@
 package codes.jakob.aoc.solution
 
 import codes.jakob.aoc.shared.splitByCharacter
-import codes.jakob.aoc.shared.splitMultiline
+import codes.jakob.aoc.shared.splitByLines
 
 object Day01 : Solution() {
     private val digitsPattern = Regex("(?=(zero|one|two|three|four|five|six|seven|eight|nine|\\d))")
@@ -9,7 +9,7 @@ object Day01 : Solution() {
     override fun solvePart1(input: String): Any {
         return input
             // Split the input into a list of lines
-            .splitMultiline()
+            .splitByLines()
             .asSequence()
             // Split each line into a list of words
             .map { line -> line.splitByCharacter() }
@@ -26,7 +26,7 @@ object Day01 : Solution() {
     override fun solvePart2(input: String): Any {
         return input
             // Split the input into a list of lines
-            .splitMultiline()
+            .splitByLines()
             .asSequence()
             // Detect the digits in each line
             .map { line -> detectDigitsFromSentence(line) }
