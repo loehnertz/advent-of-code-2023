@@ -22,3 +22,4 @@ Your instincts tell you that in order to save Christmas, you'll need to get all 
 |-----------------------|--------|--------|
 | Day 1: Trebuchet?!    | ⭐      | ⭐      |
 | Day 2: Cube Conundrum | ⭐      | ⭐      |
+| Day 3: Gear Ratios    | ⭐      | ⭐      |
