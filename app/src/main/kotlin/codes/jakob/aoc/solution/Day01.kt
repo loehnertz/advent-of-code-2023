@@ -8,23 +8,35 @@ object Day01 : Solution() {
 
     override fun solvePart1(input: String): Any {
         return input
+            // Split the input into a list of lines
             .splitMultiline()
             .asSequence()
+            // Split each line into a list of words
             .map { line -> line.splitByCharacter() }
+            // Filter out all words that do not contain a digit
             .map { chars -> chars.first { it.isDigit() } to chars.last { it.isDigit() } }
+            // Join the first and last digit of each line to a string
             .map { (first, last) -> "$first$last" }
+            // Convert the string to an integer
             .map { it.toInt() }
+            // Sum up all integers
             .sum()
     }
 
     override fun solvePart2(input: String): Any {
         return input
+            // Split the input into a list of lines
             .splitMultiline()
             .asSequence()
+            // Detect the digits in each line
             .map { line -> detectDigitsFromSentence(line) }
+            // Join the first and last digit of each line to a string
             .map { digits -> digits.first() to digits.last() }
+            // Join the first and last digit of each line to a string
             .map { (first, last) -> "$first$last" }
+            // Convert the string to an integer
             .map { it.toInt() }
+            // Sum up all integers
             .sum()
     }
 
