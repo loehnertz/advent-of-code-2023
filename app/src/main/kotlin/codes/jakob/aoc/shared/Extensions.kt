@@ -4,6 +4,7 @@ package codes.jakob.aoc.shared
 
 import java.util.*
 
+
 fun String.splitByCharacter(): List<Char> = split("").filterNot { it.isBlank() }.map { it.toSingleChar() }
 
 fun String.splitMultiline(): List<String> = split("\n")
@@ -90,4 +91,18 @@ fun <E> List<E>.associateByIndex(): Map<Int, E> {
 
 fun <E : Number> Collection<E>.multiply(): Int {
     return this.fold(1) { acc: Int, number: E -> acc * number.toInt() }
+}
+
+private val NUMBER_PATTERN = Regex("\\d+")
+fun String.isNumber(): Boolean = NUMBER_PATTERN.matches(this)
+
+fun <K, V, NK> Map<K, V>.mapKeysMergingValues(
+    transformKey: (K, V) -> NK,
+    mergeValues: (V, V) -> V,
+): Map<NK, V> {
+    return this
+        .asSequence()
+        .map { (key, value) -> transformKey(key, value) to value }
+        .groupBy({ it.first }, { it.second })
+        .mapValues { (_, values) -> values.reduce(mergeValues) }
 }
