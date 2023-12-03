@@ -24,10 +24,6 @@ object Day03 : Solution() {
             .distinct()
             // Build the numbers from the starting cells
             .map { startingCell -> buildNumberFromStartingCell(startingCell) }
-            // Convert the numbers (lists of Cell<Char>) to integers by joining them
-            .map { numberCells ->
-                numberCells.joinToString("") { cell -> cell.value.toString() }.toInt()
-            }
             // Sum up the numbers
             .sum()
     }
@@ -66,12 +62,6 @@ object Day03 : Solution() {
             .mapValues { (_, startingCells) ->
                 startingCells.map { buildNumberFromStartingCell(it) }
             }
-            // Convert the part numbers (lists of Cell<Char>) to integers by joining them
-            .mapValues { (_, partNumberDigitMatches) ->
-                partNumberDigitMatches.map { partNumberDigits ->
-                    partNumberDigits.joinToString("") { cell -> cell.value.toString() }.toInt()
-                }
-            }
             // Multiply the part numbers and sum them up
             .mapValues { (_, partNumbers) -> partNumbers.multiply() }
             .values
@@ -100,7 +90,7 @@ object Day03 : Solution() {
     /**
      * Builds a number from a starting cell by going east until the next cell is not a digit anymore.
      */
-    private fun buildNumberFromStartingCell(cell: Grid.Cell<Char>): List<Grid.Cell<Char>> {
+    private fun buildNumberFromStartingCell(cell: Grid.Cell<Char>): Int {
         val partNumberCells: MutableList<Grid.Cell<Char>> = mutableListOf(cell)
 
         tailrec fun addNextDigitCell(currentCell: Grid.Cell<Char>?) {
@@ -111,7 +101,8 @@ object Day03 : Solution() {
         }
 
         addNextDigitCell(cell.getAdjacent(Grid.Direction.EAST))
-        return partNumberCells
+        require(partNumberCells.all { it.value.isDigit() }) { "The part number cells must all be digits." }
+        return partNumberCells.joinToString("") { it.value.toString() }.toInt()
     }
 }
 
