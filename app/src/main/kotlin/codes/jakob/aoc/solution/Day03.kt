@@ -47,7 +47,7 @@ object Day03 : Solution() {
             .mapKeysMergingValues(
                 { cell, _ -> findStartingCell(cell) },
                 { accumulator, adjacentsGears ->
-                    setOf(*accumulator.toTypedArray<Grid.Cell<Char>>(), *adjacentsGears.toTypedArray<Grid.Cell<Char>>())
+                    setOf(*accumulator.toTypedArray(), *adjacentsGears.toTypedArray())
                 }
             )
             // Only retain the cells that have an adjacent gear
