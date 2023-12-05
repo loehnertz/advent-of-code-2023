@@ -18,9 +18,10 @@ Your instincts tell you that in order to save Christmas, you'll need to get all 
 
 ## Puzzles
 
-| Day                   | Part 1 | Part 2 |
-|-----------------------|--------|--------|
-| Day 1: Trebuchet?!    | ⭐      | ⭐      |
-| Day 2: Cube Conundrum | ⭐      | ⭐      |
-| Day 3: Gear Ratios    | ⭐      | ⭐      |
-| Day 4: Scratchcards   | ⭐      | ⭐      |
+| Day                                    | Part 1 | Part 2 |
+|----------------------------------------|--------|--------|
+| Day 1: Trebuchet?!                     | ⭐      | ⭐      |
+| Day 2: Cube Conundrum                  | ⭐      | ⭐      |
+| Day 3: Gear Ratios                     | ⭐      | ⭐      |
+| Day 4: Scratchcards                    | ⭐      | ⭐      |
+| Day 5: If You Give A Seed A Fertilizer | ⭐      | ⭐      |
