@@ -149,7 +149,9 @@ fun <E> Collection<E>.cartesianProduct(): List<Pair<E, E>> {
     return this.flatMap { lhs: E -> this.map { rhs: E -> lhs to rhs } }
 }
 
-fun Iterable<Int>.multiply(): Int = reduce { acc, int -> acc * int }
+fun Iterable<Int>.multiply(): Int = fold(1) { a, i -> a * i }
+
+fun Iterable<Long>.multiply(): Long = fold(1L) { a, l -> a * l }
 
 fun Char.parseInt(): Int = toString().toInt()
 
@@ -160,3 +162,14 @@ fun <T> String.parseMatrix(block: (Char) -> T): List<List<T>> {
 fun <T> String.parseGrid(block: (Char) -> T): Grid<T> {
     return Grid.fromMatrix(this.parseMatrix(block))
 }
+
+fun <T, R> memoize(block: (T) -> R): (T) -> R {
+    val cache: MutableMap<T, R> = mutableMapOf()
+    return { input: T ->
+        cache.getOrPut(input) { block(input) }
+    }
+}
+
+fun IntProgression.middle(): Int = (first + last) / 2
+
+fun LongProgression.middle(): Long = (first + last) / 2

@@ -25,3 +25,4 @@ Your instincts tell you that in order to save Christmas, you'll need to get all 
 | Day 3: Gear Ratios                     | ⭐      | ⭐      |
 | Day 4: Scratchcards                    | ⭐      | ⭐      |
 | Day 5: If You Give A Seed A Fertilizer | ⭐      | ⭐      |
+| Day 6: Wait For It                     | ⭐      | ⭐      |
