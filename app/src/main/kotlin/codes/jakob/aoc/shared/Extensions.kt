@@ -1,5 +1,7 @@
 package codes.jakob.aoc.shared
 
+import org.checkerframework.checker.units.qual.A
+import org.checkerframework.checker.units.qual.C
 import java.util.*
 
 
@@ -173,3 +175,5 @@ fun <T, R> memoize(block: (T) -> R): (T) -> R {
 fun IntProgression.middle(): Int = (first + last) / 2
 
 fun LongProgression.middle(): Long = (first + last) / 2
+
+fun <E> Collection<E>.containsTimes(e: E, times: Int): Boolean = count { it == e } == times
