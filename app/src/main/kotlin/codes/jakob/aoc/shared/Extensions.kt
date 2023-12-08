@@ -177,3 +177,23 @@ fun IntProgression.middle(): Int = (first + last) / 2
 fun LongProgression.middle(): Long = (first + last) / 2
 
 fun <E> Collection<E>.containsTimes(e: E, times: Int): Boolean = count { it == e } == times
+
+fun <T> Iterable<T>.notAll(block: (T) -> Boolean): Boolean = !all(block)
+
+fun Collection<Number>.lowestCommonMultiple(): Long {
+    /**
+     * Calculates the "lowest common multiple" of two numbers.
+     */
+    fun lcm(a: Long, b: Long): Long {
+        /**
+         * Calculates the "greatest common divisor" of two numbers.
+         */
+        fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+
+        return a / gcd(a, b) * b
+    }
+
+    return if (this.isNotEmpty() && !this.contains(0L)) {
+        this.distinct().map { it.toLong() }.reduce { acc, num -> lcm(acc, num) }
+    } else 0L // LCM is not defined for empty sets or sets containing 0
+}
