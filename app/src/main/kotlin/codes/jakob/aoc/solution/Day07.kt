@@ -73,7 +73,7 @@ object Day07 : Solution() {
                         }
                     }
 
-                    // If the pair are jokers, the highest possible hand is a full house
+                    // If the pair are jokers, the highest possible hand is a three of a kind
                     ONE_PAIR -> {
                         when (jokerCount) {
                             1 -> THREE_OF_A_KIND
@@ -90,6 +90,7 @@ object Day07 : Solution() {
                         }
                     }
 
+                    // If the three of a kind are jokers, the highest possible hand is a four of a kind
                     THREE_OF_A_KIND -> {
                         when (jokerCount) {
                             1 -> FOUR_OF_A_KIND
