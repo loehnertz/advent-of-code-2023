@@ -1,13 +1,13 @@
 package codes.jakob.aoc.shared
 
-import org.checkerframework.checker.units.qual.A
-import org.checkerframework.checker.units.qual.C
 import java.util.*
 
 
+fun String.splitByLines(): List<String> = split("\n")
+
 fun String.splitByCharacter(): List<Char> = split("").filterNot { it.isBlank() }.map { it.toSingleChar() }
 
-fun String.splitByLines(): List<String> = split("\n")
+fun String.splitBySpace(): List<String> = split(" ")
 
 fun Int.isEven(): Boolean = this % 2 == 0
 
